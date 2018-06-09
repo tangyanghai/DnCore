@@ -8,9 +8,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.corelibrary.net.Http;
+import com.example.corelibrary.net.RestClient;
+import com.example.corelibrary.net.callback.IError;
+import com.example.corelibrary.net.callback.IFailure;
+import com.example.corelibrary.net.callback.IRequest;
+import com.example.corelibrary.net.callback.ISuccess;
+import com.example.corelibrary.net.rx.RxRestClient;
 
 import java.util.HashMap;
 import java.util.List;
+
+import io.reactivex.Observer;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "AppCompatActivity";
@@ -18,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     TextView mTv;
     private String path;
     private HashMap<String, Object> map;
+    int count = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,23 +42,85 @@ public class MainActivity extends AppCompatActivity {
         mTv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Http.get(path)
-                        .setParams(map)
-                        .excute(new Http.CallBack<Bean<List<JokeBean>>>() {
-                            @Override
-                            public void onSucceed(Bean<List<JokeBean>> jokeBeanBaseBean) {
-                                List<JokeBean> result = jokeBeanBaseBean.getResult();
-                                JokeBean jokeBean = result.get(0);
-                                Log.i(TAG, "onSucceed: " + jokeBean.toString());
-                            }
-
-                            @Override
-                            public void onFailed(int errCode, String reson) {
-                                Toast.makeText(MainActivity.this, reson, Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                if (count % 2 == 1) {
+                    count++;
+                    requestNormal();
+                } else {
+                    count++;
+                    requestRx();
+                }
             }
         });
+    }
+
+    /**
+     * 使用集成了Rxjava的网络框架
+     */
+    private void requestRx() {
+        RxRestClient.post(path)
+                .params(map)
+                .excute()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<String>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        Log.i(TAG, "------------->onSubscribe: ");
+                    }
+
+                    @Override
+                    public void onNext(String s) {
+                        Log.i(TAG, "------------->onNext: " + s);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.i(TAG, "-------------->onError: " + e.toString());
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.i(TAG, "-------------->onComplete: ");
+                    }
+                });
+    }
+
+    /**
+     * 没有集成Rxjava的网络框架
+     */
+    private void requestNormal() {
+        RestClient.get(path)
+                .params(map)
+                .request(new IRequest() {
+                    @Override
+                    public void onStart() {
+                        Log.i(TAG, "onStart: 开始请求");
+                    }
+
+                    @Override
+                    public void onEnd() {
+                        Log.i(TAG, "onEnd: 请求结束");
+                    }
+                })
+                .error(new IError() {
+                    @Override
+                    public void onError(int code, String reason) {
+                        Log.i(TAG, String.format("onError: 错误回应  code = %1$d, reason = %2$s", code, reason));
+                    }
+                })
+                .failure(new IFailure() {
+                    @Override
+                    public void onFailure() {
+                        Toast.makeText(MainActivity.this, "请求失败", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .success(new ISuccess() {
+                    @Override
+                    public void onSuccess(String string) {
+                        Log.i(TAG, "onSuccess: 正确回应 -->" + string);
+                    }
+                })
+                .excute();
     }
 
     private void initData() {

@@ -4,7 +4,7 @@ package com.example.corelibrary.net;
  * Created by jett on 2018/6/4.
  */
 
-enum HttpMethod {
+public enum HttpMethod {
     GET,
     POST,
     POST_RAW,

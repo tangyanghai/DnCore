@@ -36,7 +36,7 @@ public class Configurator {
      * 配置host
      */
     public final Configurator withApiHost(String host) {
-        CONFIGS.put(ConfigKeys.API_HOST.name(), host);
+        CONFIGS.put(ConfigKeys.API_HOST, host);
         return this;
     }
 
