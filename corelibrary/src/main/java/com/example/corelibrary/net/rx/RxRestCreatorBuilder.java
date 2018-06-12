@@ -21,7 +21,7 @@ public class RxRestCreatorBuilder {
     private HashMap<String, Object> mParams;
     private RequestBody mBody;
 
-        private HttpMethod mMethod;
+    private HttpMethod mMethod;
 
     public RxRestCreatorBuilder url(String url) {
         this.mUrl = url;
@@ -65,14 +65,15 @@ public class RxRestCreatorBuilder {
     }
 
     private RxRestClient build() {
-        return new RxRestClient(mUrl, mParams, mBody,mMethod);
+        return new RxRestClient(mUrl, mParams, mBody, mMethod);
     }
 
     /**
      * 执行网络请求
      */
     public Observable<String> excute() {
-       return build().excute();
+        return build().excute();
     }
+
 }
 

@@ -1,20 +1,18 @@
 package com.example.corelibrary.net.rx;
 
 import com.example.corelibrary.net.HttpMethod;
+import com.example.corelibrary.net.JsonConvert;
 import com.example.corelibrary.net.RestCreator;
-import com.example.corelibrary.net.RestCreatorBuilder;
-import com.example.corelibrary.net.RestService;
-import com.example.corelibrary.net.callback.IError;
-import com.example.corelibrary.net.callback.IFailure;
-import com.example.corelibrary.net.callback.IRequest;
-import com.example.corelibrary.net.callback.ISuccess;
-import com.example.corelibrary.net.callback.RequestCallBack;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.RequestBody;
-import retrofit2.Call;
 
 /**
  * @author : Administrator
@@ -29,13 +27,13 @@ public class RxRestClient {
     private final RequestBody BODY;
 
     private final HttpMethod METHOD;
+    private Type t;
 
     protected RxRestClient(String URL, HashMap<String, Object> PARAMS,
                            RequestBody BODY, HttpMethod METHOD) {
         this.URL = URL;
         this.PARAMS = PARAMS;
         this.BODY = BODY;
-
         this.METHOD = METHOD;
     }
 
@@ -84,8 +82,18 @@ public class RxRestClient {
                 observable = service.delete(URL, PARAMS);
                 break;
         }
+
         //如果都不是,就直接返回一个发送空值的Observable
-        return observable;
+        return observable
+                /**
+                 * 如果在这里做了线程转换,
+                 * 交给外界使用的时候,
+                 * 外界还需要做线程转换的话就有可能出错
+                 * 所以,线程转换交给外部去做
+                 */
+                /*.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())*/;
     }
+
 
 }

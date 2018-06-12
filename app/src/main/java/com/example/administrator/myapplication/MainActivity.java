@@ -7,22 +7,27 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.corelibrary.net.Http;
 import com.example.corelibrary.net.RestClient;
 import com.example.corelibrary.net.callback.IError;
 import com.example.corelibrary.net.callback.IFailure;
 import com.example.corelibrary.net.callback.IRequest;
 import com.example.corelibrary.net.callback.ISuccess;
+import com.example.corelibrary.net.rx.RxObserver;
 import com.example.corelibrary.net.rx.RxRestClient;
+import com.example.corelibrary.rxbus.RxBus;
+import com.example.corelibrary.rxbus.RxEvent;
+import com.example.corelibrary.rxbus.RxEventWithTag;
 
 import java.util.HashMap;
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
-import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
@@ -39,18 +44,32 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mTv = findViewById(R.id.tv);
         initData();
+        RxBus.getInstance().regist(this);
         mTv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (count % 2 == 1) {
                     count++;
-                    requestNormal();
+//                    requestNormal();
+                    testRxBus();
                 } else {
                     count++;
                     requestRx();
                 }
             }
         });
+    }
+
+    @RxEvent()
+    public void onRequestSuceess(Object s) {
+        Toast.makeText(this, s.toString(), Toast.LENGTH_SHORT).show();
+        Log.i(TAG, "onRequestSuceess: 没有标记的方法返回了");
+    }
+
+    @RxEventWithTag("ceshi")
+    public void onRequestSuceessWithTag(Object s) {
+        Toast.makeText(this, s.toString(), Toast.LENGTH_SHORT).show();
+        Log.i(TAG, "onRequestSuceess: 有标记的方法返回了");
     }
 
     /**
@@ -62,27 +81,54 @@ public class MainActivity extends AppCompatActivity {
                 .excute()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<String>() {
+                .subscribe(new RxObserver<Bean<List<JokeBean>>>() {
                     @Override
-                    public void onSubscribe(Disposable d) {
-                        Log.i(TAG, "------------->onSubscribe: ");
+                    public void onSucceed(final Bean<List<JokeBean>> s) {
+                        //请求成功  事件发送给订阅者
+                        RxBus.getInstance().processChain(new Function() {
+                            @Override
+                            public Object apply(Object o) throws Exception {
+                                return s;
+                            }
+                        },"ceshi");
                     }
 
                     @Override
-                    public void onNext(String s) {
-                        Log.i(TAG, "------------->onNext: " + s);
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.i(TAG, "-------------->onError: " + e.toString());
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        Log.i(TAG, "-------------->onComplete: ");
+                    public void onFailure(Throwable e) {
+                        Log.i(TAG, "onError: 请求失败,原因:  " + e.getMessage());
                     }
                 });
+    }
+
+
+    /**
+     * 使用集成了Rxjava的网络框架
+     */
+    private void testRxBus() {
+        RxBus.getInstance().processChain(new Function() {
+            Bean<List<JokeBean>> listBean;
+
+            @Override
+            public Object apply(Object o) throws Exception {
+                RxRestClient.post(path)
+                        .params(map)
+                        .excute()
+                        .subscribe(new RxObserver<Bean<List<JokeBean>>>() {
+                            @Override
+                            public void onSucceed(final Bean<List<JokeBean>> s) {
+                                //请求成功
+                                listBean = s;
+                            }
+
+                            @Override
+                            public void onFailure(Throwable e) {
+                                Log.i(TAG, "onError: 请求失败,原因:  " + e.getMessage());
+                            }
+                        });
+
+                return listBean;
+            }
+        });
     }
 
     /**
