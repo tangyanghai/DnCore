@@ -106,8 +106,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private void testRxBus() {
         RxBus.getInstance().processChain(new Function() {
-            Bean<List<JokeBean>> listBean;
 
+            Bean<List<JokeBean>> listBean;
             @Override
             public Object apply(Object o) throws Exception {
                 RxRestClient.post(path)

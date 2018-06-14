@@ -27,7 +27,6 @@ public class RxRestClient {
     private final RequestBody BODY;
 
     private final HttpMethod METHOD;
-    private Type t;
 
     protected RxRestClient(String URL, HashMap<String, Object> PARAMS,
                            RequestBody BODY, HttpMethod METHOD) {

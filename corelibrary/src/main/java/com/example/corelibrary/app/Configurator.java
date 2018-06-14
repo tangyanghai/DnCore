@@ -15,6 +15,7 @@ public class Configurator {
 
     private static HashMap<Object, Object> CONFIGS = new HashMap<>();
     private static List<Interceptor> INTERCEPTERS = new ArrayList<>();
+    private boolean hasInterceptors = false;
 
     //<editor-fold desc="全局配置单例">
     private Configurator() {
@@ -41,12 +42,40 @@ public class Configurator {
     }
 
     /**
-     * 配置拦截器
+     * 配置网络请求重试次数--还未完成
      */
-    public final Configurator withIntercepters(ArrayList<Interceptor> intercepters){
-        INTERCEPTERS.addAll(intercepters);
-        CONFIGS.put(ConfigKeys.INTERCEPTER,intercepters);
+    public Configurator withApiRetry(int retryTimes) {
+        CONFIGS.put(ConfigKeys.API_RETRY_TIMES,retryTimes);
         return this;
+    }
+
+    /**
+     * 配置网络请求拦截器
+     */
+    public final Configurator withApiIntercepters(ArrayList<Interceptor> intercepters){
+        INTERCEPTERS.addAll(intercepters);
+        CONFIGS.put(ConfigKeys.API_INTERCEPTER,intercepters);
+        return this;
+    }
+
+    /**
+     * 配置网络请求超时时间
+     */
+    public final Configurator withApiTimeOut(int timeOut){
+        CONFIGS.put(ConfigKeys.API_TIMEOUT,timeOut);
+        return this;
+    }
+
+    /**
+     * 配置网络请求共同参数
+     */
+    public final Configurator withApiCommenParams(HashMap<String,Object> commenParams){
+        CONFIGS.put(ConfigKeys.API_COMMEN_PARAMS,commenParams);
+        return this;
+    }
+
+    public static boolean hasIntercepters(){
+        return INTERCEPTERS.size()>0;
     }
 
     /**

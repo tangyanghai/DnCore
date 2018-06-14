@@ -3,6 +3,7 @@ package com.example.corelibrary.net.rx;
 import android.text.TextUtils;
 
 import com.example.corelibrary.net.HttpMethod;
+import com.example.corelibrary.net.RestCreator;
 
 import java.util.HashMap;
 
@@ -65,6 +66,8 @@ public class RxRestCreatorBuilder {
     }
 
     private RxRestClient build() {
+        //将全局属性放进属性之中
+//        mParams = RestCreator.creatParams(mParams);
         return new RxRestClient(mUrl, mParams, mBody, mMethod);
     }
 

@@ -3,6 +3,7 @@ package com.example.administrator.myapplication;
 import android.app.Application;
 
 import com.example.corelibrary.app.ProjectInit;
+import com.example.corelibrary.net.RestCreator;
 
 /**
  * @author : Administrator
@@ -14,8 +15,11 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
         ProjectInit.init(this)
                 .withApiHost("http://api.avatardata.cn/")
-                .configure();
+                .withApiTimeOut(60)
+                .configure()
+        ;
     }
 }

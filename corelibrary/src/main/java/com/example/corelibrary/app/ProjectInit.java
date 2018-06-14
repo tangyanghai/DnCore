@@ -2,6 +2,8 @@ package com.example.corelibrary.app;
 
 import android.content.Context;
 
+import java.util.HashMap;
+
 /**
  * @author : Administrator
  * @time : 9:37
@@ -12,26 +14,35 @@ public class ProjectInit {
      * 初始化工程
      * 调用之后,继续调用{@link Configurator}的相关配置方法,配置全局变量
      */
-    public static Configurator init(Context context){
-        Configurator
+    public static Configurator init(Context context) {
+        HashMap<Object, Object> configs = Configurator
                 .getInstance()
-                .getCONFIGS()
-                .put(ConfigKeys.APPLICATION_CONTEXT.name(),context);
+                .getCONFIGS();
+                configs.put(ConfigKeys.APPLICATION_CONTEXT.name(), context);
+//                configs.put(ConfigKeys.API_COMMEN_PARAMS,null);
         return Configurator.getInstance();
     }
 
 
-    public static Configurator getConfigurator(){
+    public static Configurator getConfigurator() {
         return Configurator.getInstance();
     }
 
-    public static <T> T getConfigure(Object o){
+    public static <T> T getConfigure(Object o) {
         return getConfigurator().getConfigurator(o);
     }
 
+    public static <T> T getConfigure(Object o, T defValue) {
+        T t = getConfigurator().getConfigurator(o);
+        if (t == null) {
+            t = defValue;
+        }
+        return t;
+    }
 
-    public static Context getApplicationContext(){
-       return getConfigure(ConfigKeys.APPLICATION_CONTEXT.name());
+
+    public static Context getApplicationContext() {
+        return getConfigure(ConfigKeys.APPLICATION_CONTEXT.name());
     }
 
 }
