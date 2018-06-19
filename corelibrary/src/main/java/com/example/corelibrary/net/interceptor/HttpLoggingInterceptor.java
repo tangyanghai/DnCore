@@ -48,8 +48,8 @@ public class HttpLoggingInterceptor implements Interceptor {
 
     private static final Charset UTF8 = Charset.forName("UTF-8");
 
-    private volatile Level printLevel = Level.NONE;
-    private java.util.logging.Level colorLevel;
+    private volatile Level printLevel = Level.BODY;
+    private java.util.logging.Level colorLevel = java.util.logging.Level.INFO;
     private Logger logger;
 
     public enum Level {
@@ -63,14 +63,16 @@ public class HttpLoggingInterceptor implements Interceptor {
         logger = Logger.getLogger(tag);
     }
 
-    public void setPrintLevel(Level level) {
+    public HttpLoggingInterceptor setPrintLevel(Level level) {
         if (printLevel == null)
             throw new NullPointerException("printLevel == null. Use Level.NONE instead.");
         printLevel = level;
+        return this;
     }
 
-    public void setColorLevel(java.util.logging.Level level) {
+    public HttpLoggingInterceptor setColorLevel(java.util.logging.Level level) {
         colorLevel = level;
+        return this;
     }
 
     private void log(String message) {

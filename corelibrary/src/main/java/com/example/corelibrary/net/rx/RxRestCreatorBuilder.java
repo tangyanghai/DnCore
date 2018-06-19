@@ -67,7 +67,7 @@ public class RxRestCreatorBuilder {
 
     private RxRestClient build() {
         //将全局属性放进属性之中
-//        mParams = RestCreator.creatParams(mParams);
+        mParams = RestCreator.creatParams(mParams);
         return new RxRestClient(mUrl, mParams, mBody, mMethod);
     }
 

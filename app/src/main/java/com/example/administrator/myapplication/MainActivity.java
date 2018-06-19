@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.administrator.myapplication.bean.JokeBean;
+import com.example.administrator.myapplication.bean.ResponseBean;
 import com.example.corelibrary.net.RestClient;
 import com.example.corelibrary.net.callback.IError;
 import com.example.corelibrary.net.callback.IFailure;
@@ -21,12 +23,7 @@ import com.example.corelibrary.rxbus.RxEventWithTag;
 import java.util.HashMap;
 import java.util.List;
 
-import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
-import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
@@ -81,16 +78,17 @@ public class MainActivity extends AppCompatActivity {
                 .excute()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new RxObserver<Bean<List<JokeBean>>>() {
+                .subscribe(new RxObserver<ResponseBean<List<JokeBean>>>() {
                     @Override
-                    public void onSucceed(final Bean<List<JokeBean>> s) {
-                        //请求成功  事件发送给订阅者
-                        RxBus.getInstance().processChain(new Function() {
-                            @Override
-                            public Object apply(Object o) throws Exception {
-                                return s;
-                            }
-                        },"ceshi");
+                    public void onSucceed(final ResponseBean<List<JokeBean>> s) {
+//                        //请求成功  事件发送给订阅者
+//                        RxBus.getInstance().processChain(new Function() {
+//                            @Override
+//                            public Object apply(Object o) throws Exception {
+//                                return s;
+//                            }
+//                        }, "ceshi");
+                        RxBus.getInstance().send(s,"ceshi");
                     }
 
                     @Override
@@ -105,30 +103,53 @@ public class MainActivity extends AppCompatActivity {
      * 使用集成了Rxjava的网络框架
      */
     private void testRxBus() {
-        RxBus.getInstance().processChain(new Function() {
 
-            Bean<List<JokeBean>> listBean;
-            @Override
-            public Object apply(Object o) throws Exception {
-                RxRestClient.post(path)
-                        .params(map)
-                        .excute()
-                        .subscribe(new RxObserver<Bean<List<JokeBean>>>() {
-                            @Override
-                            public void onSucceed(final Bean<List<JokeBean>> s) {
-                                //请求成功
-                                listBean = s;
-                            }
+        RxBus.getInstance()
+                .processChain(new RxBus.RxBusFunction() {
+                    @Override
+                    protected void realApply(String s, final RxBus.Result result) {
+                        RxRestClient.post(path)
+                                .params(map)
+                                .excute()
+                                .subscribe(new RxObserver<ResponseBean<List<JokeBean>>>() {
+                                    @Override
+                                    public void onSucceed(final ResponseBean<List<JokeBean>> s) {
+                                        //请求成功
+                                        result.setData(s);
+                                    }
 
-                            @Override
-                            public void onFailure(Throwable e) {
-                                Log.i(TAG, "onError: 请求失败,原因:  " + e.getMessage());
-                            }
-                        });
+                                    @Override
+                                    public void onFailure(Throwable e) {
+                                        Log.i(TAG, "onError: 请求失败,原因:  " + e.getMessage());
+                                    }
+                                });
+                    }
+                });
 
-                return listBean;
-            }
-        });
+//        RxBus.getInstance().processChain(new Function<String, RxBus.Result>() {
+//            ResponseBean<List<JokeBean>> listResponseBean;
+//            @Override
+//            public RxBus.Result apply(String o) throws Exception {
+//                RxRestClient.post(path)
+//                        .params(map)
+//                        .excute()
+//                        .subscribe(new RxObserver<ResponseBean<List<JokeBean>>>() {
+//                            @Override
+//                            public void onSucceed(final ResponseBean<List<JokeBean>> s) {
+//                                //请求成功
+//                                listResponseBean = s;
+//                            }
+//
+//                            @Override
+//                            public void onFailure(Throwable e) {
+//                                Log.i(TAG, "onError: 请求失败,原因:  " + e.getMessage());
+//                            }
+//                        });
+//
+//                return new RxBus.Result(listResponseBean);
+//            }
+//        });
+
     }
 
     /**
@@ -184,5 +205,11 @@ public class MainActivity extends AppCompatActivity {
         map.put("rows", rows);
         map.put("sort", sort);
         map.put("time", time);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        RxBus.getInstance().unRegist(this);
     }
 }

@@ -1,5 +1,7 @@
 package com.example.corelibrary.app;
 
+import android.content.Context;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,12 +17,14 @@ public class Configurator {
 
     private static HashMap<Object, Object> CONFIGS = new HashMap<>();
     private static List<Interceptor> INTERCEPTERS = new ArrayList<>();
-    private boolean hasInterceptors = false;
+    private HashMap<String, Object> api_comment_params = new HashMap<>();
+    private static long OUT_TIME = 30;
 
     //<editor-fold desc="全局配置单例">
     private Configurator() {
         CONFIGS.put(ConfigKeys.CONFIG_READY.name(), false);
     }
+
 
     private static class Holder {
         private static Configurator instance = new Configurator();
@@ -32,6 +36,11 @@ public class Configurator {
     //</editor-fold>
 
     //<editor-fold desc="配置流程">
+
+    public final Configurator withAppContext(Context context) {
+        CONFIGS.put(ConfigKeys.APPLICATION_CONTEXT, context);
+        return this;
+    }
 
     /**
      * 配置host
@@ -45,37 +54,55 @@ public class Configurator {
      * 配置网络请求重试次数--还未完成
      */
     public Configurator withApiRetry(int retryTimes) {
-        CONFIGS.put(ConfigKeys.API_RETRY_TIMES,retryTimes);
+        CONFIGS.put(ConfigKeys.API_RETRY_TIMES, retryTimes);
         return this;
     }
 
     /**
      * 配置网络请求拦截器
      */
-    public final Configurator withApiIntercepters(ArrayList<Interceptor> intercepters){
+    public final Configurator withApiIntercepters(ArrayList<Interceptor> intercepters) {
         INTERCEPTERS.addAll(intercepters);
-        CONFIGS.put(ConfigKeys.API_INTERCEPTER,intercepters);
+        CONFIGS.put(ConfigKeys.API_INTERCEPTER, INTERCEPTERS);
+        return this;
+    }
+
+    /**
+     * 配置单独的网络请求拦截器
+     */
+    public final Configurator withApiIntercepter(Interceptor intercepter) {
+        INTERCEPTERS.add(intercepter);
+        CONFIGS.put(ConfigKeys.API_INTERCEPTER, INTERCEPTERS);
         return this;
     }
 
     /**
      * 配置网络请求超时时间
      */
-    public final Configurator withApiTimeOut(int timeOut){
-        CONFIGS.put(ConfigKeys.API_TIMEOUT,timeOut);
+    public final Configurator withApiTimeOut(int timeOut) {
+        OUT_TIME = timeOut;
+        CONFIGS.put(ConfigKeys.API_TIMEOUT, timeOut);
         return this;
     }
 
     /**
-     * 配置网络请求共同参数
+     * 配置网络请求共同参数--共同的
      */
-    public final Configurator withApiCommenParams(HashMap<String,Object> commenParams){
-        CONFIGS.put(ConfigKeys.API_COMMEN_PARAMS,commenParams);
+    public final Configurator withApiCommenParams(HashMap<String, Object> commenParams) {
+        api_comment_params.putAll(commenParams);
+        CONFIGS.put(ConfigKeys.API_COMMEN_PARAMS, api_comment_params);
         return this;
     }
 
-    public static boolean hasIntercepters(){
-        return INTERCEPTERS.size()>0;
+    /**
+     * 配置网络请求共同参数--单独的
+     */
+    public final Configurator withApiCommenParam(String key, Object value) {
+        if (key != null) {
+            api_comment_params.put(key, value);
+            CONFIGS.put(ConfigKeys.API_COMMEN_PARAMS, api_comment_params);
+        }
+        return this;
     }
 
     /**
@@ -100,6 +127,27 @@ public class Configurator {
     //<editor-fold desc="获取配置信息">
     final HashMap<Object, Object> getCONFIGS() {
         return CONFIGS;
+    }
+
+    /**
+     * @return 网络请求全局属性
+     */
+    public HashMap<String, Object> getApiCommonParams() {
+        return api_comment_params;
+    }
+
+    /**
+     * @return 网络请求拦截器
+     */
+    public List<Interceptor> getApiInterceptors() {
+        return INTERCEPTERS;
+    }
+
+    /**
+     * @return 网络请求超时时间
+     */
+    public long getTimeOut() {
+        return OUT_TIME;
     }
 
     final <T> T getConfigurator(Object key) {

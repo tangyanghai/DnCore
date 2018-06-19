@@ -70,19 +70,16 @@ public class RestCreator {
     public static OkHttpClient getOkHttpClient() {
         OkHttpClient.Builder builder = OkHttpHolder.CLIENT.newBuilder();
 
-        if (Configurator.hasIntercepters()) {
-            //设置拦截器
-            List<Interceptor> interceptors = ProjectInit.getConfigure(ConfigKeys.API_INTERCEPTER);
-            if (interceptors != null) {
-                for (Interceptor interceptor : interceptors) {
-                    builder.addInterceptor(interceptor);
-                }
+        //设置拦截器
+        List<Interceptor> interceptors = Configurator.getInstance().getApiInterceptors();
+        if (interceptors != null) {
+            for (Interceptor interceptor : interceptors) {
+                builder.addInterceptor(interceptor);
             }
         }
 
-
         //设置超时时间
-        int timeOut = ProjectInit.<Integer>getConfigure(ConfigKeys.API_TIMEOUT, 30);
+        long timeOut = Configurator.getInstance().getTimeOut();
         builder.connectTimeout(timeOut, TimeUnit.SECONDS);
         builder.retryOnConnectionFailure(true);
 
@@ -132,13 +129,14 @@ public class RestCreator {
      */
     public static HashMap<String, Object> creatParams(HashMap<String, Object> params) {
 
-        HashMap<String, Object> commen_params = ProjectInit.getConfigure(ConfigKeys.API_COMMEN_PARAMS);
-        if (commen_params != null) {
+        HashMap<String, Object> common_params = Configurator.getInstance().getApiCommonParams();
+
+        if (common_params != null) {
             if (params == null) {
-                return commen_params;
+                return common_params;
             }
 
-            params.putAll(commen_params);
+            params.putAll(common_params);
         }
         return params;
     }

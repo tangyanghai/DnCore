@@ -1,11 +1,11 @@
-package com.example.administrator.myapplication;
+package com.example.administrator.myapplication.bean;
 
 /**
  * @author : Administrator
  * @time : 17:43
  * @for :
  */
-public class Bean<T> {
+public class ResponseBean<T> {
     private int error_code;
     private String reason;
     private T result;
@@ -36,7 +36,7 @@ public class Bean<T> {
 
     @Override
     public String toString() {
-        return "Bean{" +
+        return "ResponseBean{" +
                 "error_code=" + error_code +
                 ", reason='" + reason + '\'' +
                 ", result=" + result +

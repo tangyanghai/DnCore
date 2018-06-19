@@ -47,6 +47,9 @@ public class FirstActivity extends AppCompatActivity {
         Log.i(TAG, "onRequestSuceess: 有标记的方法返回了");
     }
 
-
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        RxBus.getInstance().unRegist(this);
+    }
 }

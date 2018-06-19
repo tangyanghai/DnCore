@@ -1,8 +1,8 @@
 package com.example.corelibrary.rxbus;
 
+import android.annotation.SuppressLint;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -65,58 +65,104 @@ public class RxBus {
     /**
      * 处理事件
      */
-    public void processChain(Function function) {
+    public <R extends Result> void processChain(Function<String, R> function) {
         processChain(function, null);
     }
 
     /**
      * 处理事件
      */
-    public void processChain(Function function, final String tag) {
+    @SuppressLint("CheckResult")
+    public <R extends Result> void processChain(Function<String, R> function, final String tag) {
         Observable.just("")
                 .subscribeOn(Schedulers.io())
                 .map(function)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer() {
+                .subscribe(new Consumer<Result>() {
                     @Override
-                    public void accept(Object data) throws Exception {
-                        if (data == null) {
+                    public void accept(Result result) throws Exception {
+                        if (result.data == null) {
                             return;
                         }
-                        send(data, tag);
+                        send(result.data, tag);
                     }
                 });
     }
 
     private static final String TAG = "======RxBus======";
 
+
     /**
-     * 将得到的数据,发送到订阅者
+     * 发送数据到订阅者
      */
-    private void send(Object data, @Nullable String tag) {
-        Annotation annotation;
+    public void send(Object data) {
+        send(data, null);
+    }
+
+    /**
+     * 发送数据到所有订阅者
+     */
+    public void send(Object data, @Nullable String tag) {
         for (Object subscriber : subscribers) {
-            Log.i(TAG, "send: 外层在循环");
-            Class<?> cls = subscriber.getClass();
-            Method[] declaredMethods = cls.getDeclaredMethods();
-            for (Method declaredMethod : declaredMethods) {
-                Log.i(TAG, "send: 内层在循环");
-                annotation = declaredMethod.getAnnotation(tag == null ? RxEvent.class : RxEventWithTag.class);
-                if (annotation != null) {
-                    try {
-                        if (tag == null || TextUtils.equals(tag, ((RxEventWithTag) annotation).value())) {
-                            declaredMethod.invoke(subscriber, data);
-                            Log.i(TAG, "send: 内层在循环打断");
-                            break;
-                        }
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    } catch (InvocationTargetException e) {
-                        e.printStackTrace();
+            handleSubscriber(data, tag, subscriber);
+        }
+    }
+
+    /**
+     * 将数据发送到订阅者
+     */
+    private void handleSubscriber(Object data, @Nullable String tag, Object subscriber) {
+        Annotation annotation;
+        //获取所有方法
+        Method[] declaredMethods = subscriber.getClass().getDeclaredMethods();
+        for (Method declaredMethod : declaredMethods) {
+            //获取到
+            annotation = declaredMethod.getAnnotation(tag == null ? RxEvent.class : RxEventWithTag.class);
+            if (annotation != null) {
+                try {
+                    if (tag == null || TextUtils.equals(tag, ((RxEventWithTag) annotation).value())) {
+                        declaredMethod.invoke(subscriber, data);
+                        break;
                     }
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
                 }
             }
         }
+    }
+
+    /**
+     * {@link #processChain(Function, String)}
+     * 用于Function的返回参数-->因为返回参数不能为空,所以,外面包裹一层之后再返回,就不会报错了
+     */
+    public static final class Result {
+        Object data;
+
+        public Result() {
+        }
+
+        public Result(Object data) {
+            this.data = data;
+        }
+
+       public void setData(Object data){
+            this.data  = data;
+       }
+    }
+
+    public abstract static class RxBusFunction implements Function<String, Result> {
+        Result result = new Result();
+
+        @Override
+        public Result apply(String s) throws Exception {
+            realApply(s,result);
+            return result;
+        }
+
+        protected abstract void realApply(String s, Result result);
+
     }
 
 }

@@ -17,8 +17,9 @@ public class ProjectInit {
     public static Configurator init(Context context) {
         HashMap<Object, Object> configs = Configurator
                 .getInstance()
+                .withApiTimeOut(30)
+                .withAppContext(context)
                 .getCONFIGS();
-                configs.put(ConfigKeys.APPLICATION_CONTEXT.name(), context);
 //                configs.put(ConfigKeys.API_COMMEN_PARAMS,null);
         return Configurator.getInstance();
     }
@@ -42,7 +43,7 @@ public class ProjectInit {
 
 
     public static Context getApplicationContext() {
-        return getConfigure(ConfigKeys.APPLICATION_CONTEXT.name());
+        return getConfigure(ConfigKeys.APPLICATION_CONTEXT);
     }
 
 }
