@@ -60,6 +60,10 @@ public class HttpLoggingInterceptor implements Interceptor {
     }
 
     public HttpLoggingInterceptor(String tag) {
+        if (tag == null) {
+            tag = "net:";
+        }
+
         logger = Logger.getLogger(tag);
     }
 

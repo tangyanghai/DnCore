@@ -40,6 +40,6 @@ public enum ConfigKeys {
     /**
      * 全局的请求参数
      */
-    API_COMMEN_PARAMS
+    API_COMMEN_PARAMS,
 
 }

@@ -15,14 +15,14 @@ import okhttp3.Interceptor;
  */
 public class Configurator {
 
-    private static HashMap<Object, Object> CONFIGS = new HashMap<>();
+    private static HashMap<String, Object> CONFIGS = new HashMap<>();
     private static List<Interceptor> INTERCEPTERS = new ArrayList<>();
     private HashMap<String, Object> api_comment_params = new HashMap<>();
-    private static long OUT_TIME = 30;
 
     //<editor-fold desc="全局配置单例">
     private Configurator() {
         CONFIGS.put(ConfigKeys.CONFIG_READY.name(), false);
+        CONFIGS.put(ConfigKeys.API_TIMEOUT.name(),30L);
     }
 
 
@@ -38,7 +38,7 @@ public class Configurator {
     //<editor-fold desc="配置流程">
 
     public final Configurator withAppContext(Context context) {
-        CONFIGS.put(ConfigKeys.APPLICATION_CONTEXT, context);
+        CONFIGS.put(ConfigKeys.APPLICATION_CONTEXT.name(), context);
         return this;
     }
 
@@ -46,7 +46,7 @@ public class Configurator {
      * 配置host
      */
     public final Configurator withApiHost(String host) {
-        CONFIGS.put(ConfigKeys.API_HOST, host);
+        CONFIGS.put(ConfigKeys.API_HOST.name(), host);
         return this;
     }
 
@@ -54,7 +54,7 @@ public class Configurator {
      * 配置网络请求重试次数--还未完成
      */
     public Configurator withApiRetry(int retryTimes) {
-        CONFIGS.put(ConfigKeys.API_RETRY_TIMES, retryTimes);
+        CONFIGS.put(ConfigKeys.API_RETRY_TIMES.name(), retryTimes);
         return this;
     }
 
@@ -63,25 +63,24 @@ public class Configurator {
      */
     public final Configurator withApiIntercepters(ArrayList<Interceptor> intercepters) {
         INTERCEPTERS.addAll(intercepters);
-        CONFIGS.put(ConfigKeys.API_INTERCEPTER, INTERCEPTERS);
+        CONFIGS.put(ConfigKeys.API_INTERCEPTER.name(), INTERCEPTERS);
         return this;
     }
 
     /**
      * 配置单独的网络请求拦截器
      */
-    public final Configurator withApiIntercepter(Interceptor intercepter) {
-        INTERCEPTERS.add(intercepter);
-        CONFIGS.put(ConfigKeys.API_INTERCEPTER, INTERCEPTERS);
+    public final Configurator withApiInterceptor(Interceptor interceptor) {
+        INTERCEPTERS.add(interceptor);
+        CONFIGS.put(ConfigKeys.API_INTERCEPTER.name(), INTERCEPTERS);
         return this;
     }
 
     /**
      * 配置网络请求超时时间
      */
-    public final Configurator withApiTimeOut(int timeOut) {
-        OUT_TIME = timeOut;
-        CONFIGS.put(ConfigKeys.API_TIMEOUT, timeOut);
+    public final Configurator withApiTimeOut(long timeOut) {
+        CONFIGS.put(ConfigKeys.API_TIMEOUT.name(), timeOut);
         return this;
     }
 
@@ -90,7 +89,7 @@ public class Configurator {
      */
     public final Configurator withApiCommenParams(HashMap<String, Object> commenParams) {
         api_comment_params.putAll(commenParams);
-        CONFIGS.put(ConfigKeys.API_COMMEN_PARAMS, api_comment_params);
+        CONFIGS.put(ConfigKeys.API_COMMEN_PARAMS.name(), api_comment_params);
         return this;
     }
 
@@ -100,7 +99,7 @@ public class Configurator {
     public final Configurator withApiCommenParam(String key, Object value) {
         if (key != null) {
             api_comment_params.put(key, value);
-            CONFIGS.put(ConfigKeys.API_COMMEN_PARAMS, api_comment_params);
+            CONFIGS.put(ConfigKeys.API_COMMEN_PARAMS.name(), api_comment_params);
         }
         return this;
     }
@@ -125,7 +124,7 @@ public class Configurator {
     //</editor-fold>
 
     //<editor-fold desc="获取配置信息">
-    final HashMap<Object, Object> getCONFIGS() {
+    final HashMap<String, Object> getCONFIGS() {
         return CONFIGS;
     }
 
@@ -147,7 +146,7 @@ public class Configurator {
      * @return 网络请求超时时间
      */
     public long getTimeOut() {
-        return OUT_TIME;
+        return (long) CONFIGS.get(ConfigKeys.API_TIMEOUT.name());
     }
 
     final <T> T getConfigurator(Object key) {

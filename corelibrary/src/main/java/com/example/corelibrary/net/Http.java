@@ -2,7 +2,6 @@ package com.example.corelibrary.net;
 
 import android.util.Log;
 
-import com.alibaba.fastjson.JSONObject;
 import com.example.corelibrary.app.ConfigKeys;
 import com.example.corelibrary.app.ProjectInit;
 import com.google.gson.Gson;

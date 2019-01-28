@@ -8,7 +8,6 @@ import com.example.corelibrary.app.ProjectInit;
 import com.example.corelibrary.net.rx.RxRestService;
 import com.example.corelibrary.utils.HttpsUtils;
 
-import java.security.Key;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -26,19 +25,17 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
  */
 public class RestCreator {
 
-
     /**
      * 产生一个全局的Retrofit客户端
      */
     private static class RetrofitHoler {
         private static final Retrofit RETROFIT = new Retrofit.Builder()
-                .baseUrl(ProjectInit.<String>getConfigure(ConfigKeys.API_HOST))
+                .baseUrl(ProjectInit.<String>getConfigure(ConfigKeys.API_HOST.name()))
                 .addConverterFactory(ScalarsConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .client(getOkHttpClient())
                 .build();
     }
-
 
     /**
      * 产生一个全局的OkHttpClient,
