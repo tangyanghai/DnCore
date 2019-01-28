@@ -5,6 +5,6 @@ package com.example.corelibrary.net.callback;
  * @time : 9:04
  * @for :请求成功回调顶层接口
  */
-public interface ISuccess {
-    void onSuccess(String string);
+public interface ISuccess<T> {
+    void onSuccess(T t);
 }

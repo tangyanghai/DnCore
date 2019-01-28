@@ -1,5 +1,10 @@
 package com.example.corelibrary.net.callback;
 
+import com.alibaba.fastjson.JSON;
+import com.example.corelibrary.utils.ReflectUtils;
+
+import java.lang.reflect.Type;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -32,7 +37,14 @@ public class RequestCallBack implements Callback<String> {
             //请求成功了
             if (call.isExecuted()) {//为什么要判断执行了?
                 if (SUCCESS != null) {
-                    SUCCESS.onSuccess(response.body());
+                    try {
+                        Type type = ReflectUtils.getClassTypeOfMethod(SUCCESS.getClass(), "onSuccess");
+                        SUCCESS.onSuccess(JSON.parseObject(response.body(), type));
+                    } catch (Exception e) {
+                        if (ERROR != null) {
+                            ERROR.onError(90001, "类型转换异常");
+                        }
+                    }
                 }
             }
         } else {

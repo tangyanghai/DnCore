@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
@@ -45,14 +44,14 @@ public class MainActivity extends AppCompatActivity {
         mTv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (count % 2 == 1) {
+                requestNormal();
+                /*if (count % 2 == 1) {
                     count++;
-//                    requestNormal();
                     testRxBus();
                 } else {
                     count++;
                     requestRx();
-                }
+                }*/
             }
         });
     }
@@ -88,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
 //                                return s;
 //                            }
 //                        }, "ceshi");
-                        RxBus.getInstance().send(s,"ceshi");
+                        RxBus.getInstance().send(s, "ceshi");
                     }
 
                     @Override
@@ -181,12 +180,13 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this, "请求失败", Toast.LENGTH_SHORT).show();
                     }
                 })
-                .success(new ISuccess() {
-                    @Override
-                    public void onSuccess(String string) {
-                        Log.i(TAG, "onSuccess: 正确回应 -->" + string);
-                    }
-                })
+                .success(new ISuccess<ResponseBean<List<JokeBean>>>() {
+                             @Override
+                             public void onSuccess(ResponseBean<List<JokeBean>> o) {
+                                 Log.i(TAG, "onSuccess: 正确回应 -->" + o);
+                             }
+                         }
+                )
                 .excute();
     }
 
