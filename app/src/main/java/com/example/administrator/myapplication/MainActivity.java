@@ -158,28 +158,31 @@ public class MainActivity extends AppCompatActivity {
         RestClient.get(path)
                 .params(map)
                 .request(new IRequest() {
-                    @Override
-                    public void onStart() {
-                        Log.i(TAG, "onStart: 开始请求");
-                    }
+                             @Override
+                             public void onStart() {
+                                 Log.i(TAG, "onStart: 开始请求");
+                             }
 
-                    @Override
-                    public void onEnd() {
-                        Log.i(TAG, "onEnd: 请求结束");
-                    }
-                })
+                             @Override
+                             public void onEnd() {
+                                 Log.i(TAG, "onEnd: 请求结束");
+                             }
+                         }
+                )
                 .error(new IError() {
-                    @Override
-                    public void onError(int code, String reason) {
-                        Log.i(TAG, String.format("onError: 错误回应  code = %1$d, reason = %2$s", code, reason));
-                    }
-                })
+                           @Override
+                           public void onError(int code, String reason) {
+                               Log.i(TAG, String.format("onError: 错误回应  code = %1$d, reason = %2$s", code, reason));
+                           }
+                       }
+                )
                 .failure(new IFailure() {
-                    @Override
-                    public void onFailure() {
-                        Toast.makeText(MainActivity.this, "请求失败", Toast.LENGTH_SHORT).show();
-                    }
-                })
+                             @Override
+                             public void onFailure() {
+                                 Toast.makeText(MainActivity.this, "请求失败", Toast.LENGTH_SHORT).show();
+                             }
+                         }
+                )
                 .success(new ISuccess<ResponseBean<List<JokeBean>>>() {
                              @Override
                              public void onSuccess(ResponseBean<List<JokeBean>> o) {

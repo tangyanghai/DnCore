@@ -1,6 +1,5 @@
 package com.example.corelibrary.utils;
 
-import android.widget.RelativeLayout;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -11,7 +10,6 @@ import java.lang.reflect.Type;
  * 描述:
  */
 public class ReflectUtils {
-
 
     public static Type getClassTypeOfMethod(Class c, String methodName) {
         Method[] declaredMethods = c.getDeclaredMethods();

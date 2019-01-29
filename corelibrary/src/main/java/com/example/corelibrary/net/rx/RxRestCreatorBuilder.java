@@ -26,15 +26,12 @@ public class RxRestCreatorBuilder {
 
     public RxRestCreatorBuilder url(String url) {
         this.mUrl = url;
+        mParams = new HashMap<>();
         return this;
     }
 
     public RxRestCreatorBuilder params(HashMap<String, Object> params) {
-        if (this.mParams == null) {
-            this.mParams = params;
-        } else {
-            this.mParams.putAll(params);
-        }
+        this.mParams.putAll(params);
         return this;
     }
 
@@ -44,9 +41,6 @@ public class RxRestCreatorBuilder {
     public RxRestCreatorBuilder add(String key, Object value) {
         if (TextUtils.isEmpty(key)) {
             return this;
-        }
-        if (this.mParams == null) {
-            this.mParams = new HashMap<>();
         }
 
         mParams.put(key, value);
