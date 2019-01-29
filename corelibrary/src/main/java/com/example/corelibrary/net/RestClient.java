@@ -72,7 +72,7 @@ public class RestClient {
      * 真正执行网络请求的地方
      */
     protected void excute(){
-        RestService service = RestCreator.getServcie();
+        RestService service = RestCreator.getService();
         Call call = null;
         switch (METHOD){
             case GET:

@@ -28,7 +28,7 @@ public class RestCreator {
     /**
      * 产生一个全局的Retrofit客户端
      */
-    private static class RetrofitHoler {
+    private static class RetrofitHolder {
         private static final Retrofit RETROFIT = new Retrofit.Builder()
                 .baseUrl(ProjectInit.<String>getConfigure(ConfigKeys.API_HOST.name()))
                 .addConverterFactory(ScalarsConverterFactory.create())
@@ -103,20 +103,20 @@ public class RestCreator {
      * @return 全局的Retrofit客户端
      */
     public static Retrofit getRetrofit() {
-        return RetrofitHoler.RETROFIT;
+        return RetrofitHolder.RETROFIT;
     }
 
     /**
      * @return 全局的RestService
      */
-    public static RestService getServcie() {
+    public static RestService getService() {
         return ServiceHolder.SERVICE;
     }
 
     /**
      * @return 全局的RxRestService
      */
-    public static RxRestService getRxServcie() {
+    public static RxRestService getRxService() {
         return RxServiceHolder.RX_REST_SERVICE;
     }
 
@@ -124,7 +124,7 @@ public class RestCreator {
     /**
      * 包装全局属性
      */
-    public static HashMap<String, Object> creatParams(HashMap<String, Object> params) {
+    public static HashMap<String, Object> createParams(HashMap<String, Object> params) {
 
         HashMap<String, Object> common_params = Configurator.getInstance().getApiCommonParams();
 

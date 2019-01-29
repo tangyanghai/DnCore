@@ -86,7 +86,7 @@ public class RestCreatorBuilder {
 
     private RestClient build() {
         //添加全局属性
-        mParams = RestCreator.creatParams(mParams);
+        mParams = RestCreator.createParams(mParams);
         return new RestClient(mUrl, mParams, mBody, mRequest, mSuccess, mFailure, mError, mMethod);
     }
 

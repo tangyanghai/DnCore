@@ -1,17 +1,11 @@
 package com.example.corelibrary.net.rx;
 
 import com.example.corelibrary.net.HttpMethod;
-import com.example.corelibrary.net.JsonConvert;
 import com.example.corelibrary.net.RestCreator;
 
-import java.lang.reflect.Type;
 import java.util.HashMap;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
 import okhttp3.RequestBody;
 
 /**
@@ -64,7 +58,7 @@ public class RxRestClient {
      * 真正执行网络请求的地方
      */
     protected Observable<String> excute() {
-        RxRestService service = RestCreator.getRxServcie();
+        RxRestService service = RestCreator.getRxService();
         Observable<String> observable = null;
 
         switch (METHOD) {
